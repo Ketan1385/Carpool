@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Carpool App</title>
+
+  <style>
+
+    body { font-family: Arial; margin: 20px; }
+
+    form { margin-bottom: 30px; }
+
+    label { display: block; margin: 8px 0 4px; }
+
+    input, select { width: 100%; padding: 8px; margin-bottom: 10px; }
+
+    button { padding: 10px 15px; }
+
+  </style>
+
+</head>
+
+<body>
+
+  <h1>Carpool App</h1>
+
+ 
+
+  <h2>User Registration</h2>
+
+  <form id="registerForm">
+
+    <label>Name:</label><input type="text" name="name" required>
+
+    <label>Contact:</label><input type="text" name="contact" required>
+
+    <label>Location:</label><input type="text" name="location" required>
+
+    <label>Role:</label>
+
+    <select name="role">
+
+      <option value="Driver">Driver</option>
+
+      <option value="Passenger">Passenger</option>
+
+    </select>
+
+    <button type="submit">Register</button>
+
+  </form>
+
+ 
+
+  <h2>Find a Ride</h2>
+
+  <form id="matchForm">
+
+    <label>Search Location:</label><input type="text" id="searchLocation" required>
+
+    <button type="submit">Find Matches</button>
+
+  </form>
+
+ 
+
+  <div id="results"></div>
+
+ 
+
+  <script>
+
+    const sheetUrl = 'YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL_HERE';
+
+ 
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+
+      e.preventDefault();
+
+      const data = Object.fromEntries(new FormData(e.target).entries());
+
+      const res = await fetch(sheetUrl, {
+
+        method: 'POST',
+
+        body: JSON.stringify(data),
+
+      });
+
+      const msg = await res.text();
+
+      alert(msg);
+
+      e.target.reset();
+
+    });
+
+ 
+
+    document.getElementById('matchForm').addEventListener('submit', async (e) => {
+
+      e.preventDefault();
+
+      const location = document.getElementById('searchLocation').value.toLowerCase();
+
+      const res = await fetch(sheetUrl + '?action=read');
+
+      const data = await res.json();
+
+ 
+
+      const matches = data.filter(entry =>
+
+        entry.Location.toLowerCase().includes(location)
+
+      );
+
+ 
+
+      document.getElementById('results').innerHTML =
+
+        matches.length > 0
+
+          ? '<ul>' + matches.map(e => `<li>${e.Name} (${e.Role}) - ${e.Contact}</li>`).join('') + '</ul>'
+
+          : 'No matches found.';
+
+    });
+
+  </script>
+
+</body>
+
+</html>
